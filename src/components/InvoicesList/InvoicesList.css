@@ -19,7 +19,8 @@
 }
 
 .invoice-item.selected {
-    background-color: #f0f8ff;
+    background-color: #edf2fe;
+    color: #5c5c82;
 }
 
 .invoice-item label {
@@ -45,5 +46,5 @@
 
 .invoice-id,
 .amount {
-    font-weight: bold;
+    font-weight: 600;
 }

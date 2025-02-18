@@ -42,3 +42,8 @@
         gap: 5px;
     }
 }
+
+.invoice-id,
+.amount {
+    font-weight: bold;
+}

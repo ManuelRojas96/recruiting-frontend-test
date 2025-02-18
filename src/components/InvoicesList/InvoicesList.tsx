@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./InvoicesList.css";
 import { Invoice } from "../../models/Invoice.ts";
 
@@ -31,6 +31,22 @@ function InvoicesList({
         setSelectedId(null);
     };
 
+    const getAmountDisplay = (amount) => {
+        return new Intl.NumberFormat("es-CL", {
+            style: "currency",
+            currency: "CLP",
+            minimumFractionDigits: 0, // Sin decimales
+        })
+            .format(amount)
+            .toString();
+    };
+
+    const getLastColumnDetail = (invoice: Invoice) => {
+        return invoice.type === "credit_note"
+            ? invoice.reference
+            : invoice.type;
+    };
+
     return (
         <div className="invoice-list">
             {items.map((invoice) => (
@@ -43,19 +59,19 @@ function InvoicesList({
                             type="radio"
                             name={category ?? "invoices"}
                             checked={selectedId === invoice.id}
+                            onChange={() => {}}
                             onClick={() => {
                                 onItemClick && onItemClick(invoice);
                                 handleSelect(invoice.id);
                             }}
                         />
-                        <span>
-                            {invoice.id} ({invoice.organization_id ?? "-"})
-                        </span>
+                        <span className="invoice-id">{invoice.id}</span>
+                        <span>({invoice.organization_id ?? "-"})</span>
                     </label>
-                    <span>
-                        {invoice.amount.toString()} {invoice.currency}
+                    <span className="amount">
+                        {getAmountDisplay(invoice.amount)} {invoice.currency}
                     </span>
-                    <span>{invoice.type}</span>
+                    <span>{getLastColumnDetail(invoice)}</span>
                 </div>
             ))}
         </div>

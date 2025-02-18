@@ -18,3 +18,7 @@
 h1 {
     font-weight: bold;
 }
+
+.main {
+    padding: 2vh 2vw;
+}

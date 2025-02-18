@@ -62,7 +62,7 @@ function Home() {
     }
 
     return (
-        <div>
+        <div className="main">
             <h1>Selecciona una factura</h1>
             <InvoicesList
                 items={invoices}

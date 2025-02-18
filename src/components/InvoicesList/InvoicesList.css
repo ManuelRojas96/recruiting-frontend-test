@@ -18,6 +18,10 @@
     border-bottom: none;
 }
 
+.invoice-item.selected {
+    background-color: #f0f8ff;
+}
+
 .invoice-item label {
     display: flex;
     align-items: center;

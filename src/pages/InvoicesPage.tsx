@@ -5,6 +5,7 @@ import { getInvoices, injectInvoices } from "../services/InvoiceService";
 import Paginator from "../components/Paginator";
 import type { Currency, InjectionStatus } from "../components/InvoiceFilters";
 import InvoiceFilters from "../components/InvoiceFilters";
+import InjectReviewModal from "../components/InjectReviewModal";
 
 const PAGE_SIZE = 12;
 
@@ -22,6 +23,10 @@ const InvoicesPage = () => {
   const [currencies, setCurrencies] = useState<Currency[]>(["CLP", "USD"]);
   const [injectionStatus, setInjectionStatus] =
     useState<InjectionStatus>("all");
+
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewSelection, setReviewSelection] = useState<Invoice[]>([]);
+  const [injectLoading, setInjectLoading] = useState(false);
 
   useEffect(() => {
     getInvoices().then((invoices: Invoice[]) => setInvoices(invoices));
@@ -82,6 +87,32 @@ const InvoicesPage = () => {
     page * PAGE_SIZE
   );
 
+  function handleOpenReviewModal() {
+    const selection = invoices.filter(
+      (inv) => selectedIds.includes(inv.id) && !inv.injected
+    );
+    setReviewSelection(selection);
+    setReviewOpen(true);
+  }
+
+  async function handleConfirmInjection() {
+    setInjectLoading(true);
+    try {
+      await injectInvoices(reviewSelection.map((i) => i.id));
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          reviewSelection.some((sel) => sel.id === inv.id)
+            ? { ...inv, injected: true }
+            : inv
+        )
+      );
+      setSelectedIds([]);
+      setReviewOpen(false);
+    } finally {
+      setInjectLoading(false);
+    }
+  }
+
   return (
     <div
       className="min-h-screen flex flex-col gap-4"
@@ -100,7 +131,7 @@ const InvoicesPage = () => {
       <div className="mb-4">
         <button
           className="px-4 py-2 rounded bg-indigo-500 text-white disabled:bg-gray-400"
-          onClick={handleInject}
+          onClick={handleOpenReviewModal}
           disabled={selectedIds.length === 0 || loading}
         >
           {loading
@@ -120,6 +151,13 @@ const InvoicesPage = () => {
         currentPage={page}
         totalPages={totalPages}
         onChange={setPage}
+      />
+      <InjectReviewModal
+        open={reviewOpen}
+        invoices={reviewSelection}
+        onConfirm={handleConfirmInjection}
+        onCancel={() => setReviewOpen(false)}
+        loading={injectLoading}
       />
     </div>
   );

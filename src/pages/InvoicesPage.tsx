@@ -15,10 +15,6 @@ const InvoicesPage = () => {
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(invoices.length / PAGE_SIZE);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
   const [nameFilter, setNameFilter] = useState("");
   const [currencies, setCurrencies] = useState<Currency[]>(["CLP", "USD"]);
   const [injectionStatus, setInjectionStatus] =
@@ -37,38 +33,6 @@ const InvoicesPage = () => {
     setCurrencies(["CLP", "USD"]);
     setInjectionStatus("all");
   };
-
-  async function handleInject() {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    const notInjectedIds = invoices
-      .filter((inv) => selectedIds.includes(inv.id) && !inv.injected)
-      .map((inv) => inv.id);
-
-    if (notInjectedIds.length === 0) {
-      setLoading(false);
-      setError("No hay facturas pendientes de inyección.");
-      return;
-    }
-
-    try {
-      await injectInvoices(notInjectedIds);
-      setInvoices((prev) =>
-        prev.map((inv) =>
-          notInjectedIds.includes(inv.id) ? { ...inv, injected: true } : inv
-        )
-      );
-      setSelectedIds([]);
-      setSuccess(true);
-    } catch (e) {
-      setError("Error al inyectar facturas. Intenta nuevamente.");
-    } finally {
-      setLoading(false);
-      setTimeout(() => setSuccess(false), 2000);
-    }
-  }
 
   const filteredInvoices = invoices.filter((inv) => {
     if (
@@ -128,20 +92,13 @@ const InvoicesPage = () => {
         onInjectionStatusChange={setInjectionStatus}
         onClear={handleClearFilters}
       />
-      <div className="mb-4">
-        <button
-          className="px-4 py-2 rounded bg-indigo-500 text-white disabled:bg-gray-400"
-          onClick={handleOpenReviewModal}
-          disabled={selectedIds.length === 0 || loading}
-        >
-          {loading
-            ? "Inyectando..."
-            : success
-            ? "¡Facturas inyectadas!"
-            : "Inyectar"}
-        </button>
-        {error && <div className="text-red-600 mt-2">{error}</div>}
-      </div>
+      <button
+        style={{ width: "120px" }}
+        onClick={handleOpenReviewModal}
+        disabled={selectedIds.length === 0}
+      >
+        Inyectar
+      </button>
       <InvoiceTable
         invoices={pagedInvoices}
         selectedIds={selectedIds}

@@ -13,7 +13,7 @@ const InvoicesPage = () => {
   }, []);
   return (
     <div>
-      <h1 style={{ color: "black" }}> Facturas pendientes</h1>
+      {/* <h1 style={{ color: "black" }}> Facturas pendientes</h1> */}
       <InvoiceTable invoices={invoices}></InvoiceTable>
     </div>
   );

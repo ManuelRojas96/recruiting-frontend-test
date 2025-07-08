@@ -3,6 +3,8 @@ import InvoiceTable from "../components/InvoicesTable";
 import type { Invoice } from "../models/Invoice";
 import { getInvoices, injectInvoices } from "../services/InvoiceService";
 import Paginator from "../components/Paginator";
+import type { Currency, InjectionStatus } from "../components/InvoiceFilters";
+import InvoiceFilters from "../components/InvoiceFilters";
 
 const PAGE_SIZE = 12;
 
@@ -11,18 +13,25 @@ const InvoicesPage = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(invoices.length / PAGE_SIZE);
-  const pagedInvoices = invoices.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
-  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [nameFilter, setNameFilter] = useState("");
+  const [currencies, setCurrencies] = useState<Currency[]>(["CLP", "USD"]);
+  const [injectionStatus, setInjectionStatus] =
+    useState<InjectionStatus>("all");
+
   useEffect(() => {
     getInvoices().then((invoices: Invoice[]) => setInvoices(invoices));
   }, []);
+
+  const handleClearFilters = () => {
+    setNameFilter("");
+    setCurrencies(["CLP", "USD"]);
+    setInjectionStatus("all");
+  };
 
   async function handleInject() {
     setLoading(true);
@@ -56,12 +65,38 @@ const InvoicesPage = () => {
     }
   }
 
+  const filteredInvoices = invoices.filter((inv) => {
+    if (
+      nameFilter &&
+      !inv.receiverName.toLowerCase().includes(nameFilter.toLowerCase())
+    )
+      return false;
+    if (!currencies.includes(inv.currency)) return false;
+    if (injectionStatus === "injected" && !inv.injected) return false;
+    if (injectionStatus === "not-injected" && inv.injected) return false;
+    return true;
+  });
+
+  const pagedInvoices = filteredInvoices.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+
   return (
     <div
       className="min-h-screen flex flex-col gap-4"
       style={{ gap: "16px", flexDirection: "column" }}
     >
       <h1 style={{ color: "black" }}> Facturas pendientes</h1>
+      <InvoiceFilters
+        nameFilter={nameFilter}
+        onNameFilterChange={setNameFilter}
+        currencies={currencies}
+        onCurrenciesChange={setCurrencies}
+        injectionStatus={injectionStatus}
+        onInjectionStatusChange={setInjectionStatus}
+        onClear={handleClearFilters}
+      />
       <div className="mb-4">
         <button
           className="px-4 py-2 rounded bg-indigo-500 text-white disabled:bg-gray-400"

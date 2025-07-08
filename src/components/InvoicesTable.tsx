@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { Invoice } from "../models/Invoice";
 import StatusIcon from "./StatusIcon";
 import { formatAmount } from "../utils/Utils";
@@ -14,8 +13,6 @@ export default function InvoiceTable({
   selectedIds,
   onSelectionChange,
 }: InvoiceTableProps) {
-  //const [selected, setSelected] = useState<string[]>([]);
-
   function handleToggle(id: string) {
     if (selectedIds.includes(id)) {
       onSelectionChange(selectedIds.filter((item) => item !== id));
@@ -26,7 +23,11 @@ export default function InvoiceTable({
 
   function handleCheckAll(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.checked) {
-      onSelectionChange(invoices.map((invoice) => invoice.id));
+      onSelectionChange(
+        invoices
+          .filter((invoice) => !invoice.injected)
+          .map((invoice) => invoice.id)
+      );
     } else {
       onSelectionChange([]);
     }
@@ -42,7 +43,9 @@ export default function InvoiceTable({
               type="checkbox"
               checked={
                 invoices.length > 0 &&
-                invoices.every((inv) => selectedIds.includes(inv.id))
+                invoices.every(
+                  (inv) => selectedIds.includes(inv.id) || inv.injected
+                )
               }
               onChange={handleCheckAll}
             />
@@ -64,7 +67,12 @@ export default function InvoiceTable({
                 type="checkbox"
                 checked={selectedIds.includes(inv.id)}
                 onChange={() => handleToggle(inv.id)}
-                className="w-5 h-5 mr-4"
+                className={`
+                  w-5 h-5 mr-4 border-gray-300 rounded
+                  disabled:bg-gray-200 disabled:cursor-not-allowed
+                  disabled:border-gray-300
+                `}
+                disabled={inv.injected === true}
               />
             </td>
             <td className="font-medium text-gray-800 text-lg">

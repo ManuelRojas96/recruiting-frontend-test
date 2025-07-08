@@ -1,6 +1,5 @@
 export async function postWithRetry(url: string, body: any, maxRetries = 3) {
   const authToken = import.meta.env.VITE_AUTH_TOKEN;
-  let lastError;
   for (let i = 0; i < maxRetries; i++) {
     const resp = await fetch(url, {
       method: "POST",
@@ -12,7 +11,6 @@ export async function postWithRetry(url: string, body: any, maxRetries = 3) {
     });
     if (resp.ok) return resp;
     if (resp.status === 500) {
-      lastError = resp;
       await new Promise((res) => setTimeout(res, 300 * (i + 1)));
       continue;
     } else {

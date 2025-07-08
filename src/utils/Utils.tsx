@@ -1,4 +1,4 @@
-export function formatAmount(amount: number, currency: "CLP" | "USD") {
+export function formatAmount(amount: number, currency: "CLP" | "USD"): string {
   if (currency === "CLP") {
     return `$${amount.toLocaleString("es-CL", { maximumFractionDigits: 0 })}`;
   } else {

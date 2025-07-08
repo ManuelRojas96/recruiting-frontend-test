@@ -5,22 +5,30 @@ import { formatAmount } from "../utils/Utils";
 
 interface InvoiceTableProps {
   invoices: Invoice[];
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
 }
 
-export default function InvoiceTable({ invoices }: InvoiceTableProps) {
-  const [selected, setSelected] = useState<string[]>([]);
+export default function InvoiceTable({
+  invoices,
+  selectedIds,
+  onSelectionChange,
+}: InvoiceTableProps) {
+  //const [selected, setSelected] = useState<string[]>([]);
 
   function handleToggle(id: string) {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter((item) => item !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
+    }
   }
 
   function handleCheckAll(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.checked) {
-      setSelected(invoices.map((invoice) => invoice.id));
+      onSelectionChange(invoices.map((invoice) => invoice.id));
     } else {
-      setSelected([]);
+      onSelectionChange([]);
     }
   }
 
@@ -34,7 +42,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
               type="checkbox"
               checked={
                 invoices.length > 0 &&
-                invoices.every((inv) => selected.includes(inv.id))
+                invoices.every((inv) => selectedIds.includes(inv.id))
               }
               onChange={handleCheckAll}
             />
@@ -54,7 +62,7 @@ export default function InvoiceTable({ invoices }: InvoiceTableProps) {
             <td className="flex items-center py-4 px-4">
               <input
                 type="checkbox"
-                checked={selected.includes(inv.id)}
+                checked={selectedIds.includes(inv.id)}
                 onChange={() => handleToggle(inv.id)}
                 className="w-5 h-5 mr-4"
               />

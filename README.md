@@ -1,5 +1,4 @@
 # Link de Vercel:
-En verdad no funciona por un problema con el token creo. Lo intenté agregar pero por alguna razón no lo reconoce. Lo dejo igual acá por si acaso
 https://invoice-injection-app-manuelrojas96s-projects.vercel.app/
 
 # 🧾 Prueba Técnica - Inyección de Facturas al ERP
